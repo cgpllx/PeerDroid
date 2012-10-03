@@ -64,18 +64,11 @@ public class Peer2Peer {
 				// android.util.Log.i("Peer2Peer", "Server is started");
 				System.out.println("Server is started");
 				// Receive request from client
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+				DatagramPacket packet = new DatagramPacket(new byte[8192],8192);
 				socket.receive(packet);
 				InetAddress client = packet.getAddress();
-				// if
-				// (!(client.getHostAddress().equals(myInetAddress.getHostAddress())
-				// && peers.contains(client))) {
-				// peers.add(client);
-				// }
 				int client_port = packet.getPort();
-				// android.util.Log.i("Peer2Peer", "Received " + new
-				// String(buffer) + " from " + client);
-				String resposta = new String(buffer);
+				String resposta = new String(packet.getData()).trim();
 				System.out.println("Received " + resposta + " from " + client);
 
 				// protocolo
@@ -118,9 +111,8 @@ public class Peer2Peer {
 			for (int i = 0; i < 253; i++) {
 				socketUDP.receive(packet2);
 
-				android.util.Log.i("Peer2Peer", "*{{{" + packet2.getAddress());
 				address = packet2.getAddress();
-				if (!address.getHostAddress().equals(ipLocal)) {
+				if (!address.getHostAddress().equals(ipLocal) && !peers.contains(address.getHostAddress())) {
 					peers.add(address.getHostAddress());
 				}
 			}
@@ -137,18 +129,20 @@ public class Peer2Peer {
 		}
 	}
 
-	public void enviaMensagem() {
+	public void enviaMensagem(final String mensagem) {
 		new Thread(new Runnable() {
 
 			public void run() {
 				procuraPeers();
 				int port = 5000;
-				String message = "M]Aramaki";
+				String message = "M]" + mensagem;
 				try {
 					DatagramSocket socket = new DatagramSocket();
 					for (String address : peers) {
 						InetAddress inetAddress = InetAddress.getByName(address);
-						byte[] msg = message.getBytes();
+						byte[] msg = new byte[1024];
+						msg = message.getBytes();
+						android.util.Log.i("Peer2Peer", "######## " + new String(msg));
 						DatagramPacket packet = new DatagramPacket(msg, msg.length, inetAddress, port);
 						socket.send(packet);
 					}
