@@ -35,8 +35,8 @@ public class MainActivity extends Activity implements ListenerDeNovosObjetosRece
 	}
 
 	public void envia(View v) {
-//		p2p.enviaMensagemDeTexto(edtText.getText().toString());
-		p2p.enviaImagem(getResources().getDrawable(R.drawable.foto_paciente));
+		// p2p.enviaMensagemDeTexto(edtText.getText().toString());
+		p2p.enviaImagem(getResources().getDrawable(R.drawable.lago));
 		((TextView) findViewById(R.id.tv_meu_ip)).setText(p2p.getMeuEnderecoIP());
 		ArrayAdapter<Object> adapter = new ArrayAdapter<Object>(this, android.R.layout.simple_expandable_list_item_1, (Object[]) p2p.getListaDePeers().toArray());
 		listView.setAdapter(adapter);
@@ -47,9 +47,10 @@ public class MainActivity extends Activity implements ListenerDeNovosObjetosRece
 		switch (tipo) {
 			case Peer2Peer.TIPO_OBJETO_IMAGEM:
 				final Drawable drawable = (Drawable) objeto;
-				android.util.Log.i("Peer2Peer", "Imagem Recebida " + drawable );
+				if (drawable == null)
+					break;
 				runOnUiThread(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						ivPic.setImageDrawable(drawable);
@@ -63,5 +64,9 @@ public class MainActivity extends Activity implements ListenerDeNovosObjetosRece
 			default:
 				break;
 		}
+	}
+	
+	public void removeImagem(View v) {
+		ivPic.setImageDrawable(null);
 	}
 }
