@@ -31,6 +31,9 @@ import android.graphics.drawable.Drawable;
  */
 public class PeerDroid {
 
+	private static final int 				UDP_SERVER_PORT = 5000;
+	private static final int 				TCP_SERVER_PORT = 5002;
+	
 	public static final int					TIPO_OBJETO_IMAGEM	= 1;
 	public static final int					TIPO_OBJETO_TEXTO	= 2;
 
@@ -40,7 +43,7 @@ public class PeerDroid {
 	private Drawable						objetoDrawable;
 	private ServerSocket					tcpServerSocket;
 	private ListenerDeNovosObjetosRecebidos	listenerDeNovosObjetosRecebidos;
-
+	
 	public PeerDroid(Context context) {
 		this.context = context;
 		new Thread(new Runnable() {
@@ -88,7 +91,7 @@ public class PeerDroid {
 			return;
 
 		try {
-			tcpServerSocket = new ServerSocket(5002);
+			tcpServerSocket = new ServerSocket(TCP_SERVER_PORT);
 			while (true) {
 				Socket s = tcpServerSocket.accept();
 				DataInputStream in = new DataInputStream(s.getInputStream());
@@ -123,7 +126,7 @@ public class PeerDroid {
 
 	private void executaServidorUDP() throws SocketException {
 		byte[] buffer = new byte[1024];
-		int port = 5000;
+		int port = UDP_SERVER_PORT;
 		String message;
 		DatagramSocket socket = new DatagramSocket(port);
 
@@ -178,7 +181,7 @@ public class PeerDroid {
 				case TIPO_OBJETO_IMAGEM:
 					// TODO Object is been converted from array to drawable in
 					// memory. Shoud be saved to sdcard(?) in order for peer
-					// searching
+					// searching.
 					objetoDrawable = new BitmapDrawable(BitmapFactory.decodeByteArray(data, 0, data.length));
 					listenerDeNovosObjetosRecebidos.objetoRecebido(null, TIPO_OBJETO_IMAGEM, objetoDrawable);
 					break;
@@ -192,7 +195,7 @@ public class PeerDroid {
 	private void procuraPeers() {
 		String mensagem = "B]";
 		byte[] buffer = mensagem.getBytes();
-		int port = 5000;
+		int port = UDP_SERVER_PORT;
 		try {
 			InetAddress address = InetAddress.getByName("255.255.255.255");
 			DatagramSocket socketUDP = new DatagramSocket();
@@ -227,7 +230,7 @@ public class PeerDroid {
 
 			public void run() {
 				procuraPeers();
-				int port = 5000;
+				int port = UDP_SERVER_PORT;
 				String message = "M]" + mensagem;
 				try {
 					DatagramSocket socket = new DatagramSocket();
@@ -258,10 +261,10 @@ public class PeerDroid {
 				bitmap.compress(Bitmap.CompressFormat.JPEG, 20, stream);
 				byte[] bitmapdata = stream.toByteArray();
 				android.util.Log.i("Peer2Peer", ">>> " + new String(bitmapdata));
-				int port = 5000;
+				int port = UDP_SERVER_PORT;
 				try {
 					for (String address : peers) {
-						Socket s = new Socket(address, 5002);
+						Socket s = new Socket(address, TCP_SERVER_PORT);
 						// BufferedWriter out = new BufferedWriter(new
 						// OutputStreamWriter(s.getOutputStream()));
 						DataOutputStream out = new DataOutputStream(s.getOutputStream());
