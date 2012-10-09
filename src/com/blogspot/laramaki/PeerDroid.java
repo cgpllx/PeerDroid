@@ -29,7 +29,7 @@ import android.graphics.drawable.Drawable;
  * 
  * @author leonardo aramaki <leoaramaki@gmail.com>
  */
-public class Peer2Peer {
+public class PeerDroid {
 
 	public static final int					TIPO_OBJETO_IMAGEM	= 1;
 	public static final int					TIPO_OBJETO_TEXTO	= 2;
@@ -41,7 +41,7 @@ public class Peer2Peer {
 	private ServerSocket					tcpServerSocket;
 	private ListenerDeNovosObjetosRecebidos	listenerDeNovosObjetosRecebidos;
 
-	public Peer2Peer(Context context) {
+	public PeerDroid(Context context) {
 		this.context = context;
 		new Thread(new Runnable() {
 

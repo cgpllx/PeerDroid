@@ -1,6 +1,6 @@
 package com.blogspot.laramaki;
 
-import com.blogspot.laramaki.Peer2Peer.ListenerDeNovosObjetosRecebidos;
+import com.blogspot.laramaki.PeerDroid.ListenerDeNovosObjetosRecebidos;
 
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements ListenerDeNovosObjetosRecebidos {
 
-	Peer2Peer	peerDroid;
+	PeerDroid	peerDroid;
 	ListView	listView;
 	EditText	edtText;
 	ImageView	ivPic;
@@ -25,7 +25,7 @@ public class MainActivity extends Activity implements ListenerDeNovosObjetosRece
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		peerDroid = new Peer2Peer(this);
+		peerDroid = new PeerDroid(this);
 		peerDroid.setListenerDeNovosObjetosRecebidos(this);
 		listView = (ListView) findViewById(R.id.list_peers);
 		ivPic = (ImageView) findViewById(R.id.iv_pic);
@@ -53,7 +53,7 @@ public class MainActivity extends Activity implements ListenerDeNovosObjetosRece
 	@Override
 	public void objetoRecebido(String endereco, int tipo, Object objeto) {
 		switch (tipo) {
-			case Peer2Peer.TIPO_OBJETO_IMAGEM:
+			case PeerDroid.TIPO_OBJETO_IMAGEM:
 				final Drawable drawable = (Drawable) objeto;
 				if (drawable == null)
 					break;
@@ -67,7 +67,7 @@ public class MainActivity extends Activity implements ListenerDeNovosObjetosRece
 					}
 				});
 				break;
-			case Peer2Peer.TIPO_OBJETO_TEXTO:
+			case PeerDroid.TIPO_OBJETO_TEXTO:
 				break;
 			default:
 				break;
