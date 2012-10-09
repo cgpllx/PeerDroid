@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements ListenerDeNovosObjetosRecebidos {
 
-	Peer2Peer	p2p;
+	Peer2Peer	peerDroid;
 	ListView	listView;
 	EditText	edtText;
 	ImageView	ivPic;
@@ -25,20 +25,28 @@ public class MainActivity extends Activity implements ListenerDeNovosObjetosRece
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		p2p = new Peer2Peer(this);
-		p2p.setListenerDeNovosObjetosRecebidos(this);
+		peerDroid = new Peer2Peer(this);
+		peerDroid.setListenerDeNovosObjetosRecebidos(this);
 		listView = (ListView) findViewById(R.id.list_peers);
 		ivPic = (ImageView) findViewById(R.id.iv_pic);
 		edtText = (EditText) findViewById(R.id.edt_text);
-		ArrayAdapter<Object> adapter = new ArrayAdapter<Object>(this, android.R.layout.simple_expandable_list_item_1, (Object[]) p2p.getListaDePeers().toArray());
+		ArrayAdapter<Object> adapter = new ArrayAdapter<Object>(this, android.R.layout.simple_expandable_list_item_1, (Object[]) peerDroid.getListaDePeers().toArray());
 		listView.setAdapter(adapter);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (peerDroid != null) {
+			peerDroid.stop();
+		}
 	}
 
 	public void envia(View v) {
 		// p2p.enviaMensagemDeTexto(edtText.getText().toString());
-		p2p.enviaImagem(getResources().getDrawable(R.drawable.lago));
-		((TextView) findViewById(R.id.tv_meu_ip)).setText(p2p.getMeuEnderecoIP());
-		ArrayAdapter<Object> adapter = new ArrayAdapter<Object>(this, android.R.layout.simple_expandable_list_item_1, (Object[]) p2p.getListaDePeers().toArray());
+		peerDroid.enviaImagem(getResources().getDrawable(R.drawable.lago));
+		((TextView) findViewById(R.id.tv_meu_ip)).setText(peerDroid.getMeuEnderecoIP());
+		ArrayAdapter<Object> adapter = new ArrayAdapter<Object>(this, android.R.layout.simple_expandable_list_item_1, (Object[]) peerDroid.getListaDePeers().toArray());
 		listView.setAdapter(adapter);
 	}
 

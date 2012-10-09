@@ -25,6 +25,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+/**
+ * 
+ * @author leonardo aramaki <leoaramaki@gmail.com>
+ */
 public class Peer2Peer {
 
 	public static final int					TIPO_OBJETO_IMAGEM	= 1;
@@ -34,6 +38,7 @@ public class Peer2Peer {
 	private Context							context;
 	private String							ipLocal;
 	private Drawable						objetoDrawable;
+	private ServerSocket					tcpServerSocket;
 	private ListenerDeNovosObjetosRecebidos	listenerDeNovosObjetosRecebidos;
 
 	public Peer2Peer(Context context) {
@@ -43,18 +48,19 @@ public class Peer2Peer {
 			public void run() {
 				try {
 					getEnderecoLocal();
-					new Thread(new Runnable() {
-
-						@Override
-						public void run() {
-							executaServidorTCP();
-						}
-					}).start();
 					executaServidorUDP();
 				}
 				catch (SocketException e) {
 					e.printStackTrace();
 				}
+			}
+		}).start();
+
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				executaServidorTCP();
 			}
 		}).start();
 	}
@@ -78,12 +84,13 @@ public class Peer2Peer {
 	}
 
 	private void executaServidorTCP() {
-		ServerSocket ss = null;
+		if (tcpServerSocket != null)
+			return;
 
 		try {
-			ss = new ServerSocket(5002);
+			tcpServerSocket = new ServerSocket(5002);
 			while (true) {
-				Socket s = ss.accept();
+				Socket s = tcpServerSocket.accept();
 				DataInputStream in = new DataInputStream(s.getInputStream());
 
 				int len = in.readInt();
@@ -103,9 +110,9 @@ public class Peer2Peer {
 			e.printStackTrace();
 		}
 		finally {
-			if (ss != null) {
+			if (tcpServerSocket != null) {
 				try {
-					ss.close();
+					tcpServerSocket.close();
 				}
 				catch (IOException e) {
 					e.printStackTrace();
@@ -169,6 +176,9 @@ public class Peer2Peer {
 		if (listenerDeNovosObjetosRecebidos != null) {
 			switch (tipo) {
 				case TIPO_OBJETO_IMAGEM:
+					// TODO Object is been converted from array to drawable in
+					// memory. Shoud be saved to sdcard(?) in order for peer
+					// searching
 					objetoDrawable = new BitmapDrawable(BitmapFactory.decodeByteArray(data, 0, data.length));
 					listenerDeNovosObjetosRecebidos.objetoRecebido(null, TIPO_OBJETO_IMAGEM, objetoDrawable);
 					break;
@@ -275,23 +285,22 @@ public class Peer2Peer {
 		}).start();
 	}
 
-	private byte[] concatenarArrays(byte[] a, byte[] b) {
-		if (a == null)
-			return b;
-		if (b == null)
-			return a;
-		byte[] r = new byte[a.length + b.length];
-		System.arraycopy(a, 0, r, 0, a.length);
-		System.arraycopy(b, 0, r, a.length, b.length);
-		return r;
-	}
-
 	public List<String> getListaDePeers() {
 		return this.peers;
 	}
 
 	public String getMeuEnderecoIP() {
 		return this.ipLocal;
+	}
+
+	public void stop() {
+		try {
+			if (tcpServerSocket != null)
+				tcpServerSocket.close();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public interface ListenerDeNovosObjetosRecebidos {
